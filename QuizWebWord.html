@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>内製開発クイズ</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 16px;
+    color: #003356;
+  }
+  .quiz-container {
+    background-color: #e3e1d6;
+    max-width: 600px;
+    height: 450px;
+    margin: 0 auto;
+    text-align: left;
+    padding: 48px;
+    border-radius: 10px;
+    position: relative; /* 相対位置指定 */
+  }
+  .quiz-question { /* 問題文 */
+    font-size: 20px;
+    background-color: #003356;
+    color: #e3e1d6;
+    padding: 16px;
+    margin-bottom: 10px;
+  }
+  .quiz-options { /* 選択肢　*/
+    font-size: 28px;
+    margin-top: 24px;
+    margin-bottom: 36px;
+    color: #003356;
+    font-weight: bold;
+  }
+  .option-label {
+    display: block;
+    margin-bottom: 16px;
+    cursor: pointer;
+    font-size: 20px;
+  }
+  .option-label:hover {
+    background-color: #f0f0f0;
+  }
+  .result {
+    position: absolute; /* 絶対位置指定 */
+    top: 50%; /* 上端を中央に配置 */
+    left: 50%; /* 左端を中央に配置 */
+    transform: translate(-50%, -50%); /* 中央揃え */
+    font-size: 48px; /* フォントサイズを大きく */
+    width: 100%; /* 幅を100%にして親要素にフィットさせる */
+    text-align: center; /* テキストを中央揃え */
+  }
+  .progress { /*何問中何問目*/
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    margin: 24px;
+    font-size: 16px;
+  }
+  .title-screen {
+    background-color: #e3e1d6;
+    max-width: 600px;
+    height: 400px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 32px;
+    border-radius: 8px;
+    position: relative; /* 相対位置指定 */
+  }
+  .title-text {
+    font-size: 32px;
+    margin-top: 128px;
+    margin-bottom: 64px;
+    color: #003356;
+  }
+  .button-custom {
+  background-color:#f8b73d;
+  color: #003356;
+  padding: 16px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  }
+  .button-custom:hover {
+    background-color: #b37709;
+  }
+
+
+  #restart-button {   /*　CSSではID指定は#を使う！！！ */
+  background-color:#f8b73d;
+  color: #003356;
+  padding: 16px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  }
+  #restart-button:hover {
+    background-color: #b37709;
+  }
+
+  .result-message {
+  background-color:#003356;
+  color: #e3e1d6;
+  padding: 0px, 16px, 0, 16px;
+  font-size: 16px;
+  font-weight: bold;
+  width: 100%;
+  }
+
+  .score {
+  color: #003356;
+  font-size: 128px;
+  font-weight: bold;
+  }
+  
+</style>
+</head>
+<body>
+
+<div class="title-screen">
+  <div class="title-text">内製開発クイズ</div>
+  <button onclick="startQuiz()" class="button-custom">挑戦する</button>
+</div>
+
+<div class="quiz-container" style="display: none;">
+  <div id="quiz-question" class="quiz-question"></div>
+  <form id="quiz-form">
+    <div id="quiz-options" class="quiz-options">
+      <label class="option-label"><input type="radio" name="option" value="0"> <span id="option0"></span></label>
+      <label class="option-label"><input type="radio" name="option" value="1"> <span id="option1"></span></label>
+      <label class="option-label"><input type="radio" name="option" value="2"> <span id="option2"></span></label>
+    </div>
+  </form>
+  <button onclick="nextQuestion()" class="button-custom">回答する</button>
+  <button onclick="restartQuiz()" id="restart-button" style="display: none;">もう１回！</button> 
+  <div id="result" class="result"></div>
+  <div id="progress" class="progress"></div>
+</div>
+
+<script>
+// クイズデータ
+const quizData = [
+  {
+    question: "SSOT、なんの略？",
+    options: ["Simple Sign of Terms", "Secret Segment of transcend", "Single Source of Truth"],
+    answerIndex: 2
+  },
+  {
+    question: "Githubでローカルのファイルをリモートリポジトリにプッシュしたい。正しい手順は？",
+    options: ["add→commit→push", "commit→add→push", "push→add→commit"],
+    answerIndex: 0
+  },
+  {
+    question: "DONE、何と読む？",
+    options: ["ドーン", "ダーン", "ドネーン"],
+    answerIndex: 1
+  },
+  {
+    question: "ユーザーが何らかの操作を行った時に画面上に表示され、数秒後に自動的に消える通知、何と言う？",
+    options: ["トグル", "モーダル", "トースト"],
+    answerIndex: 2
+  },
+  {
+    question: "１回のスプリント中に完了できる作業量の尺度、何と言う？",
+    options: ["キャパシティ", "ベロシティ", "ケイパビリティ"],
+    answerIndex: 1
+  },
+  {
+    question: "RFC違反のRFC、何の略？",
+    options: ["Request For Comment", "Restricition for Command", "Requirements for Call"],
+    answerIndex: 0
+  },
+  {
+    question: "入力されたデータが正しい形式であるか確認すること、何と言う？",
+    options: ["チェッキング", "リコレクション", "バリデーション"],
+    answerIndex: 2
+  },
+  {
+    question: "隣り合う２つの文字と文字の間隔を調整すること、何と言う？",
+    options: ["トラッキング", "カーニング", "スペイシング"],
+    answerIndex: 1
+  },
+  {
+    question: "以下のアトミックデザインの要素の中で、最も大きい単位は？",
+    options: ["Molecules", "Atoms", "Organisms"],
+    answerIndex: 2
+  },
+  {
+    question: "Webページの情報をSNSで正確に伝えるために使用するHTML要素、何と言う？",
+    options: ["PWA", "TLD", "OGP"],
+    answerIndex: 2
+  },
+  {
+    question: "「シェブロン(Chevron)」はどれ？",
+    options: ["〉", "|", "+"],
+    answerIndex: 0
+  },
+  {
+    question: "キャメルケースの「キャメル」の由来は？",
+    options: ["キャラメル", "ラクダ", "たばこ"],
+    answerIndex: 1
+  },
+  {
+    question: "Webサイトのマージンやコンテンツのサイズ、何の倍数で設定するのが良い？",
+    options: ["5の倍数", "10の倍数", "8の倍数"],
+    answerIndex: 2
+  }
+  ,
+  {
+    question: "GoogleChromeでoption + command + i (Shift + Ctrl + i)を押すとどうなる？",
+    options: ["設定が開く", "開発者ツールが開く", "新規タブが開く"],
+    answerIndex: 1
+  }
+  ,
+  {
+    question: "アジャイル開発だけどウォーターフォールに合わせて期限が決まっている状態、何と言う？",
+    options: ["EXアジャイル", "ウォーターアジャイル", "尻ジャイル"],
+    answerIndex: 2
+  }
+];
+
+let currentQuestion = 0;
+let score = 0;
+
+// 問題をシャッフルする関数
+const shuffleQuestions = () => {
+  for (let i = quizData.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [quizData[i], quizData[j]] = [quizData[j], quizData[i]];
+  }
+};
+
+// 最初の5問をランダムに選ぶ
+shuffleQuestions();
+quizData.splice(5);
+
+// タイトル画面を非表示にしてクイズコンテナを表示する関数
+const startQuiz = () => {
+  const titleScreen = document.querySelector('.title-screen');
+  const quizContainer = document.querySelector('.quiz-container');
+  
+  titleScreen.style.display = 'none';
+  quizContainer.style.display = 'block';
+  
+  displayQuestion(); // 最初の問題を表示
+}
+
+// 問題を表示する関数
+const displayQuestion = () => {
+  const quizQuestion = document.getElementById('quiz-question');
+  const quizOptions = document.getElementById('quiz-options');
+  const option0 = document.getElementById('option0');
+  const option1 = document.getElementById('option1');
+  const option2 = document.getElementById('option2');
+
+  quizQuestion.textContent = quizData[currentQuestion].question;
+  option0.textContent = quizData[currentQuestion].options[0];
+  option1.textContent = quizData[currentQuestion].options[1];
+  option2.textContent = quizData[currentQuestion].options[2];
+  
+  updateProgress(); // 問題番号表示を更新
+
+    // 前の問題の結果をクリア
+    const result = document.getElementById('result');
+    result.innerHTML = '';
+
+      // 問題表示後にボタンを再度有効化
+  document.querySelector('.button-custom').disabled = false;
+
+}
+
+// 問題番号を表示する関数
+const updateProgress = () => {
+  const progress = document.getElementById('progress');
+  progress.textContent = `5問中 ${currentQuestion + 1}問目です`;
+}
+
+// 次の問題へ進む関数
+const nextQuestion = () => {
+  const options = document.getElementsByName('option');
+  let selectedOption = -1;
+  
+  for (let i = 0; i < options.length; i++) {
+    if (options[i].checked) {
+      selectedOption = parseInt(options[i].value);
+      break;
+    }
+  }
+  
+  if (selectedOption === -1) {
+    alert("選択肢を選んでください！");
+    return;
+  }
+  
+  const answerIndex = quizData[currentQuestion].answerIndex;
+  const result = document.getElementById('result');
+  
+  if (selectedOption === answerIndex) {
+    result.innerHTML = '<span style="color: green; font-size: 320px;">○</span>';
+    score++;
+  } else {
+    result.innerHTML = '<span style="color: red; font-size: 320px;">×</span>';
+  }
+  currentQuestion++;
+  
+  if (currentQuestion < quizData.length) {
+    // ラジオボタンの選択をクリア
+    document.getElementById('quiz-form').reset();
+    // 2秒後に次の問題を表示
+    setTimeout(displayQuestion, 1000);
+    // 結果の表示を一時的にクリア
+    setTimeout(() => {
+      result.innerHTML = '';
+    }, 1000);
+  } else {
+    // ゲーム終了
+    document.getElementById('quiz-options').style.display = 'none';
+    let resultMessage;
+  switch (score) {
+  case 5:
+    resultMessage = 'Perfect!!あなたは内製開発マスターです！';
+    break;
+  case 4:
+    resultMessage = 'な、なかなかやるじゃない！！';
+    break;
+  case 3:
+    resultMessage = 'まずまずといったところか...';
+    break;
+  default:
+    resultMessage = 'お主には失望した...半年ROMるがよい';
+    }
+
+result.innerHTML = '<p>正答数: <span class="score">' + score + '</span>/5</p>' +
+                   '<p class="result-message">' + resultMessage + '</p>';
+
+    // ボタンを非表示にする
+    const nextButton = document.querySelector('.quiz-container .button-custom');
+    if (nextButton) {
+      nextButton.style.display = 'none';
+    }
+
+    // 問題文を非表示 「もう１回」ボタンを表示
+    document.getElementById('quiz-question').style.display = 'none';
+    document.getElementById('quiz-options').style.display = 'none';
+    document.getElementById('progress').style.display = 'none';
+    document.getElementById('restart-button').style.display = 'block';
+  }
+  
+  // ボタンの無効化
+  document.querySelector('button').disabled = true;
+  // 次の問題表示時にボタンを再度有効化
+  setTimeout(() => {
+    document.querySelector('button').disabled = false;
+  }, 1000);
+  
+  setTimeout(updateProgress, 1000);  // 問題番号表示を更新
+}
+
+// 「もう１回！」ボタンをクリックしたときに呼び出される関数
+const restartQuiz = () => {
+location.reload()
+}
+</script>
+
+</body>
+</html>
