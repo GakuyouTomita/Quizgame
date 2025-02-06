@@ -17,7 +17,7 @@
     height: 450px;
     margin: 0 auto;
     text-align: left;
-    padding: 48px;
+    padding: 24px;
     border-radius: 10px;
     position: relative; /* 相対位置指定 */
   }
@@ -45,13 +45,13 @@
     background-color: #f0f0f0;
   }
   .result {
-    position: absolute; /* 絶対位置指定 */
+    position: absolute;
     top: 50%; /* 上端を中央に配置 */
     left: 50%; /* 左端を中央に配置 */
     transform: translate(-50%, -50%); /* 中央揃え */
-    font-size: 48px; /* フォントサイズを大きく */
-    width: 100%; /* 幅を100%にして親要素にフィットさせる */
-    text-align: center; /* テキストを中央揃え */
+    font-size: 48px;
+    width: 100%;
+    text-align: center;
   }
   .progress { /*何問中何問目*/
     position: absolute;
@@ -68,7 +68,7 @@
     text-align: center;
     padding: 32px;
     border-radius: 8px;
-    position: relative; /* 相対位置指定 */
+    position: relative; 
   }
   .title-text {
     font-size: 32px;
@@ -88,7 +88,6 @@
   .button-custom:hover {
     background-color: #b37709;
   }
-
 
   #restart-button {   /*　CSSではID指定は#を使う！！！ */
   background-color:#f8b73d;
@@ -110,7 +109,7 @@
   .result-message {
   background-color:#003356;
   color: #e3e1d6;
-  padding: 0px, 16px, 0, 16px;
+  padding: 16px, 16px, 16px, 16px;
   font-size: 16px;
   font-weight: bold;
   width: 100%;
@@ -122,6 +121,13 @@
   font-weight: bold;
   }
   
+  .warning-message {
+  color: #003356;
+  font-size: 12px;
+  font-weight: bold;
+  margin-top: 8px;
+  }
+
 </style>
 </head>
 <body>
@@ -141,7 +147,8 @@
     </div>
   </form>
   <button onclick="nextQuestion()" class="button-custom">回答する</button>
-  <button onclick="restartQuiz()" id="restart-button" style="display: none;">もう１回！</button> 
+  <div id="warning-message" class="warning-message"></div> <!-- 注意文の追加 -->
+  <button onclick="restartQuiz()" id="restart-button" style="display: none;">違う問題で再挑戦</button> 
   <div id="result" class="result"></div>
   <div id="progress" class="progress"></div>
 </div>
@@ -161,16 +168,16 @@ const quizData = [
   },
   {
     question: "DONE、何と読む？",
-    options: ["ドーン", "ダーン", "ドネーン"],
+    options: ["ドーン", "ダーン", "ドゥーン"],
     answerIndex: 1
   },
   {
-    question: "ユーザーが何らかの操作を行った時に画面上に表示され、数秒後に自動的に消える通知、何と言う？",
+    question: "ユーザーが何らかの操作を行った時に画面上に表示され、数秒後に自動的に消える通知のこと、何と言う？",
     options: ["トグル", "モーダル", "トースト"],
     answerIndex: 2
   },
   {
-    question: "１回のスプリント中に完了できる作業量の尺度、何と言う？",
+    question: "１回のスプリント中に完了できる作業量の尺度のことを何と言う？",
     options: ["キャパシティ", "ベロシティ", "ケイパビリティ"],
     answerIndex: 1
   },
@@ -180,22 +187,22 @@ const quizData = [
     answerIndex: 0
   },
   {
-    question: "入力されたデータが正しい形式であるか確認すること、何と言う？",
+    question: "入力されたデータが正しい形式であるか確認することを何と言う？",
     options: ["チェッキング", "リコレクション", "バリデーション"],
     answerIndex: 2
   },
   {
-    question: "隣り合う２つの文字と文字の間隔を調整すること、何と言う？",
+    question: "隣り合う２つの文字と文字の間隔を調整することを何と言う？",
     options: ["トラッキング", "カーニング", "スペイシング"],
     answerIndex: 1
   },
   {
-    question: "以下のアトミックデザインの要素の中で、最も大きい単位は？",
+    question: "以下のアトミックデザインの要素の中で、それ以上分割できない最も小さい単位は？",
     options: ["Molecules", "Atoms", "Organisms"],
     answerIndex: 2
   },
   {
-    question: "Webページの情報をSNSで正確に伝えるために使用するHTML要素、何と言う？",
+    question: "Webページの情報をSNSで正確に伝えるために使用するHTML要素のことを何と言う？",
     options: ["PWA", "TLD", "OGP"],
     answerIndex: 2
   },
@@ -205,12 +212,12 @@ const quizData = [
     answerIndex: 0
   },
   {
-    question: "キャメルケースの「キャメル」の由来は？",
-    options: ["キャラメル", "ラクダ", "たばこ"],
-    answerIndex: 1
+    question: "スネークケースはどれ？",
+    options: ["snake_case", "SnakeCase", "snakeCase"],
+    answerIndex: 0
   },
   {
-    question: "Webサイトのマージンやコンテンツのサイズ、何の倍数で設定するのが良い？",
+    question: "Webサイトのマージンやコンテンツのサイズ、何の倍数で設定するのが良いとされる？",
     options: ["5の倍数", "10の倍数", "8の倍数"],
     answerIndex: 2
   }
@@ -222,10 +229,101 @@ const quizData = [
   }
   ,
   {
-    question: "アジャイル開発だけどウォーターフォールに合わせて期限が決まっている状態、何と言う？",
+    question: "アジャイル開発だけどウォーターフォールに合わせて期限が決まっている状態のことを何と言う？",
     options: ["EXアジャイル", "ウォーターアジャイル", "尻ジャイル"],
     answerIndex: 2
   }
+  ,
+  {
+    question: "オブジェクト指向プログラミングの3大要素。「カプセル化」「継承」あと一つは？",
+    options: ["マテリアリズム", "ポリモーフィズム", "キュビズム"],
+    answerIndex: 1
+  }
+  ,
+  {
+    question: "kubernetesの読み方は？",
+    options: ["キューブネッツ", "キュバァノーツ", "クバネティス"],
+    answerIndex: 2
+  }
+  ,
+  {
+    question: "内部・外部を問わずすべてのアクセスを検証し、常に最小権限でのアクセスを適用する考え方は？",
+    options: ["ゼロトラスト", "境界型防御", "エンドポイント対策"],
+    answerIndex: 0
+  }
+  ,
+  {
+    question: "オンボーディング系UIの一つで、全画面をオーバーレイで覆い、タップしてほしい場所のみをハイライトする形式をなんと言う？",
+    options: ["ウォークスルー型", "エンプティステート型", "コーチマーク型"],
+    answerIndex: 2
+  }
+  ,
+  {
+    question: "「意思決定にかかる時間は、とりうる選択肢の数と複雑さで決まる」ことを示した心理学の法則は？",
+    options: ["ポステルの法則", "ヒックの法則", "ヤコブの法則"],
+    answerIndex: 1
+  }
+  ,
+  {
+    question: "マークダウン記法で打ち消し線を出すには？",
+    options: ["~~デジプロ~~", "**デジプロ**", "--デジプロ--"],
+    answerIndex: 0
+  }
+  ,
+  {
+    question: "「ブランドの認知想起のされやすさ」を示すマーケティング用語は？",
+    options: ["ホリスティックアプローチ", "リードナーチャリング", "メンタルアベイラビリティ"],
+    answerIndex: 2
+  }
+  ,
+  {
+    question: "フォンレストルフ効果についての説明で正しいものは？",
+    options: ["似たものが並んでいると、その中で他とは異なるものが記憶に残りやすい", "見た目が美しいデザインはより使いやすいと感じられる", "応答が0.4秒以内の時、コンピュータとユーザーの双方がもっとも生産的になる"],
+    answerIndex: 0
+  }
+  ,
+  {
+    question: "アジャイルソフトウェア開発宣言では、「契約交渉」よりも何に価値をおくべきと宣言されている？",
+    options: ["迅速な行動", "顧客との協調", "柔軟な提案"],
+    answerIndex: 1
+  }
+  ,
+  {
+    question: "2025年2月現在、経済産業省に届出している登録小売電気事業者は、日本全国で何件くらいある？",
+    options: ["約100件", "約700件", "約1400件"],
+    answerIndex: 1
+  }
+  ,
+  {
+    question: "Webサイトをネイティブアプリのように利用できるようにする技術は？",
+    options: ["Progressive Web Apps", "Positive Web API", "Programing Wonderful Amazing"],
+    answerIndex: 0
+  }
+  ,
+  {
+    question: "Macでcommand + Wすると何が起こる？",
+    options: ["新しいタブが開く", "現在のタブが複製される", "現在のタブが閉じる"],
+    answerIndex: 2
+  }
+  ,
+  {
+    question: "ガスメーター、誰の所有物？",
+    options: ["ガス事業者", "需要家（お客さま）", "ガス事業者と需要家の共有物"],
+    answerIndex: 0
+  }
+  ,
+  {
+    question: "卒FITのFIT、何の略？",
+    options: ["Feed-in Tariff", "Fuel-in-Tax", "Financial Incentive for Technology"],
+    answerIndex: 0
+  }
+  ,
+  {
+    question: "天然ガスは、何度まで冷やすと液体に変化する？",
+    options: ["マイナス342度", "マイナス115度", "マイナス162度"],
+    answerIndex: 2
+  }
+
 ];
 
 let currentQuestion = 0;
@@ -245,14 +343,11 @@ quizData.splice(5);
 
 // タイトル画面を非表示にしてクイズコンテナを表示する関数
 const startQuiz = () => {
-  const titleScreen = document.querySelector('.title-screen');
-  const quizContainer = document.querySelector('.quiz-container');
-  
-  titleScreen.style.display = 'none';
-  quizContainer.style.display = 'block';
-  
-  displayQuestion(); // 最初の問題を表示
+  document.querySelector('.title-screen').style.display = 'none';
+  document.querySelector('.quiz-container').style.display = 'block';
+  displayQuestion();
 }
+
 
 // 問題を表示する関数
 const displayQuestion = () => {
@@ -269,13 +364,6 @@ const displayQuestion = () => {
   
   updateProgress(); // 問題番号表示を更新
 
-    // 前の問題の結果をクリア
-    const result = document.getElementById('result');
-    result.innerHTML = '';
-
-      // 問題表示後にボタンを再度有効化
-  document.querySelector('.button-custom').disabled = false;
-
 }
 
 // 問題番号を表示する関数
@@ -286,23 +374,30 @@ const updateProgress = () => {
 
 // 次の問題へ進む関数
 const nextQuestion = () => {
-  const options = document.getElementsByName('option');
+  const options = document.getElementsByName('option'); //選択肢の要素を取得
   let selectedOption = -1;
   
-  for (let i = 0; i < options.length; i++) {
+  for (let i = 0; i < options.length; i++) { //どの選択肢が選ばれたかチェック
     if (options[i].checked) {
-      selectedOption = parseInt(options[i].value);
+      selectedOption = parseInt(options[i].value); //選択肢のvalue属性(0,1,2)を取得しselectedOptionにその値を設定。parseIntで文字列から数値に変換
       break;
     }
   }
   
-  if (selectedOption === -1) {
-    alert("選択肢を選んでください！");
-    return;
-  }
-  
   const answerIndex = quizData[currentQuestion].answerIndex;
   const result = document.getElementById('result');
+  const warningMessage = document.getElementById('warning-message');
+  if (selectedOption === -1) {
+  // 選択肢が選ばれていない場合、警告メッセージを表示
+  warningMessage.textContent = '選択肢を選んでください';
+  return; // 処理を中断
+  } else {
+  // 警告メッセージをクリア
+  warningMessage.textContent = '';
+  }
+  
+  
+
   
   if (selectedOption === answerIndex) {
     result.innerHTML = '<span style="color: green; font-size: 320px;">○</span>';
@@ -310,64 +405,72 @@ const nextQuestion = () => {
   } else {
     result.innerHTML = '<span style="color: red; font-size: 320px;">×</span>';
   }
+  
   currentQuestion++;
+  console.log('currentQuestion:',currentQuestion);
   
   if (currentQuestion < quizData.length) {
     // ラジオボタンの選択をクリア
     document.getElementById('quiz-form').reset();
     // 2秒後に次の問題を表示
-    setTimeout(displayQuestion, 1000);
-    // 結果の表示を一時的にクリア
+    setTimeout(() => {
+      displayQuestion();
+      updateProgress();  // 問題番号表示を更新
+    }, 1000);
+    // 結果○×の表示を一時的にクリア
     setTimeout(() => {
       result.innerHTML = '';
     }, 1000);
   } else {
-    // ゲーム終了
-    document.getElementById('quiz-options').style.display = 'none';
-    let resultMessage;
+    // すべての問題が終了した後の処理
+    // 最後の問題も同様に○×を表示したあとで結果を表示
+    setTimeout(() => {
+      resultpage();
+    }, 1000); // 1秒後に結果ページを表示
+  }
+}
+
+// 結果画面を表示する関数
+const resultpage = () => {
+  // ゲーム終了
+  document.getElementById('quiz-options').style.display = 'none';
+  
+  let resultMessage;
   switch (score) {
-  case 5:
-    resultMessage = 'Perfect!!あなたは内製開発マスターです！';
-    break;
-  case 4:
-    resultMessage = 'な、なかなかやるじゃない！！';
-    break;
-  case 3:
-    resultMessage = 'まずまずといったところか...';
-    break;
-  default:
-    resultMessage = 'お主には失望した...半年ROMるがよい';
-    }
-
-result.innerHTML = '<p>正答数: <span class="score">' + score + '</span>/5</p>' +
-                   '<p class="result-message">' + resultMessage + '</p>';
-
-    // ボタンを非表示にする
-    const nextButton = document.querySelector('.quiz-container .button-custom');
-    if (nextButton) {
-      nextButton.style.display = 'none';
-    }
-
-    // 問題文を非表示 「もう１回」ボタンを表示
-    document.getElementById('quiz-question').style.display = 'none';
-    document.getElementById('quiz-options').style.display = 'none';
-    document.getElementById('progress').style.display = 'none';
-    document.getElementById('restart-button').style.display = 'block';
+    case 5:
+      resultMessage = 'ぱーふぇくと！　あなたは　ないせいかいはつの　たつじんです！';
+      break;
+    case 4:
+      resultMessage = 'なかなかの　うでまえ　です！';
+      break;
+    case 3:
+      resultMessage = 'まずまず　と　いったところか';
+      break;
+    case 2:
+      resultMessage = 'なんという　ていたらく！';
+    default:
+      resultMessage = 'しんそつから　やりなおそう';
   }
   
-  // ボタンの無効化
-  document.querySelector('button').disabled = true;
-  // 次の問題表示時にボタンを再度有効化
-  setTimeout(() => {
-    document.querySelector('button').disabled = false;
-  }, 1000);
-  
-  setTimeout(updateProgress, 1000);  // 問題番号表示を更新
+  document.getElementById('result').innerHTML = '<p>正答数: <span class="score">' + score + '</span>/5</p>' +
+                       '<p class="result-message">' + resultMessage + '</p>';
+
+  // ボタンを非表示にする
+  const nextButton = document.querySelector('.quiz-container .button-custom');
+  if (nextButton) {
+    nextButton.style.display = 'none';
+  }
+
+  // 問題文を非表示 「もう１回」ボタンを表示
+  document.getElementById('quiz-question').style.display = 'none';
+  document.getElementById('quiz-options').style.display = 'none';
+  document.getElementById('progress').style.display = 'none';
+  document.getElementById('restart-button').style.display = 'block';
 }
 
 // 「もう１回！」ボタンをクリックしたときに呼び出される関数
 const restartQuiz = () => {
-location.reload()
+  location.reload();
 }
 </script>
 
